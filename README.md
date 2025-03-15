@@ -6,8 +6,7 @@ ever wish you could buy your beer by echoing what you want directly into your ke
 
 ## Features
 - Creates `/dev/stregsystem`.
-- GET /1/ to fetch CSRF and POST /1/sale/ with quickbuy command.
-- Fully done in kernel space (C), no userspace helper.
+- send a multibuy via a character device under `/dev` to [stregsystemet](https://github.com/f-klubben/stregsystemet)
 
 ## Build
 `make`
