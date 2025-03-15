@@ -1,1 +1,4 @@
 -I/lib/modules/6.13.6-zen1-1-zen/build/include
+-I/lib/modules/6.13.6-zen1-1-zen/build/arch/x86/include/generated
+-I/lib/modules/6.13.6-zen1-1-zen/build/arch/x86/include
+-Ilib
