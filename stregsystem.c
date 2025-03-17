@@ -1,4 +1,3 @@
-
 #include "lib/kernel.h"
 
 module_init(stregsystem_init);

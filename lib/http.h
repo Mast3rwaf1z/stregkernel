@@ -1,35 +1,78 @@
 #pragma once
 
-#include <linux/inet.h>
 #include <linux/net_namespace.h>
+#include <linux/inet.h>
+#include <linux/net.h>
 
 #include "tcp.h"
 
-static void perform_http_request(char *command) {
-    struct socket *sock;
-    struct sockaddr_in saddr;
-    char recv_buf[4096];
-    char http_req[1024];
-    char csrf_token[128] = {0};
+static void release_socket(struct socket* sock) {
+    sock_release(sock);
+}
+
+// Prepare structs
+static int prepare_socket(struct socket* sock, struct sockaddr* addr, ssize_t size) {
     int ret;
 
-    // ---------- GET CSRF Token ----------
     ret = sock_create_kern(&init_net, AF_INET, SOCK_STREAM, IPPROTO_TCP, &sock);
-    if (ret < 0) { pr_err("Socket create failed\n"); return; }
+    if (ret < 0) {
+        pr_err("Socket creation failed\n");
+        return ret;
+    }
 
-    memset(&saddr, 0, sizeof(saddr));
-    saddr.sin_family = AF_INET;
-    saddr.sin_addr.s_addr = htonl(0x7F000001); // 127.0.0.1
-    saddr.sin_port = htons(8000);
+    ret = kernel_connect(sock, addr, size, 0);
+    if (ret < 0) {
+        pr_err("Failed to connect\n");
+        release_socket(sock);
+        return ret;
+    }
+    pr_info("Prepared socket\n");
+    return 0;
+}
 
-    ret = kernel_connect(sock, (struct sockaddr*)&saddr, sizeof(saddr), 0);
-    if (ret < 0) { pr_err("Connect failed\n"); goto out_release; }
+static int prepare_addr(struct sockaddr_in* addr, ssize_t size) {
+    memset(addr, 0, size);
+    addr->sin_family = AF_INET;
+    addr->sin_addr.s_addr = htonl(0x7F000001);
+    addr->sin_port = htons(8000);
+    return 0;
+}
 
-    snprintf(http_req, sizeof(http_req),
-        "GET /1/ HTTP/1.1\r\n"
+static int prepare_http_request(char* request, char* endpoint, ssize_t size) {
+    int ret = snprintf(request, size,
+        "GET %s HTTP/1.1\r\n"
         "Host: 127.0.0.1:8000\r\n"
-        "Connection: close\r\n\r\n");
+        "Connection: close\r\n\r\n",
+        endpoint
+    );
+    pr_info("Prepared http request\n");
+    return ret;
+}
 
+// HTTP helper functions
+static int get_content_between(char* endpoint, char* buffer, char* start_string, char end_char) {
+    struct socket *sock;
+    struct sockaddr_in addr;
+    char recv_buf[4096];
+    char http_req[1024];
+    int ret;
+
+    ret = prepare_addr(&addr, sizeof(addr));
+    if (ret < 0) {
+        pr_err("Failed to prepare address\n");
+        return ret;
+    }
+
+    ret = prepare_socket(sock, (struct sockaddr*)&addr, sizeof(addr));
+    if (ret < 0) {
+        pr_err("Failed to prepare socket\n");
+        return ret;
+    }
+    ret = prepare_http_request(http_req, endpoint, sizeof(http_req));
+    if (ret < 0) {
+        pr_err("Failed to prepare http request");
+        return ret;
+    }
     tcp_send(sock, http_req, strlen(http_req));
     int bytes_read, total_read = 0;
     memset(recv_buf, 0, sizeof(recv_buf));
@@ -41,49 +84,23 @@ static void perform_http_request(char *command) {
     
     pr_info("GET Response: %.200s\n", recv_buf);
 
-    char *token_start = strstr(recv_buf, "name=\"csrfmiddlewaretoken\" value=\"");
+    char *token_start = strstr(recv_buf, start_string);
     if (token_start) {
-        token_start += strlen("name=\"csrfmiddlewaretoken\" value=\"");
-        char *token_end = strchr(token_start, '"');
+        token_start += strlen(start_string);
+        char *token_end = strchr(token_start, end_char);
         if (token_end) {
             size_t token_len = token_end - token_start;
-            strncpy(csrf_token, token_start, token_len);
-            csrf_token[token_len] = '\0';
-            pr_info("Parsed CSRF token: %s\n", csrf_token);
+            strncpy(buffer, token_start, token_len);
+            buffer[token_len] = '\0';
+            pr_info("Parsed string: %s\n", buffer);
         }
     } else {
-        pr_err("CSRF token not found!\n");
-        goto out_release;
+        pr_err("string not found!\n");
+        release_socket(sock);
     }
 
-    sock_release(sock);
+    release_socket(sock);
+    pr_info("Found string\n");
+    return 0;
 
-    // ---------- POST with Command ----------
-    ret = sock_create_kern(&init_net, AF_INET, SOCK_STREAM, IPPROTO_TCP, &sock);
-    if (ret < 0) { pr_err("Socket create failed\n"); return; }
-
-    ret = kernel_connect(sock, (struct sockaddr*)&saddr, sizeof(saddr), 0);
-    if (ret < 0) { pr_err("Connect failed\n"); goto out_release; }
-
-    char post_body[512];
-    snprintf(post_body, sizeof(post_body), "quickbuy=%s&csrfmiddlewaretoken=%s", command, csrf_token);
-
-    snprintf(http_req, sizeof(http_req),
-        "POST /1/sale/ HTTP/1.1\r\n"
-        "Host: 127.0.0.1:8000\r\n"
-        "Content-Type: application/x-www-form-urlencoded\r\n"
-        "Cookie: csrftoken=%s\r\n"
-        "Content-Length: %zu\r\n"
-        "Connection: close\r\n\r\n"
-        "%s",
-        csrf_token,
-        strlen(post_body), post_body);
-
-    tcp_send(sock, http_req, strlen(http_req));
-    memset(recv_buf, 0, sizeof(recv_buf));
-    tcp_recv(sock, recv_buf, sizeof(recv_buf) - 1);
-    pr_info("POST Response: %.200s\n", recv_buf);
-
-out_release:
-    sock_release(sock);
 }

@@ -9,6 +9,7 @@ static int tcp_send(struct socket *sock, char *buf, size_t length) {
         .iov_base = buf,
         .iov_len = length
     };
+    pr_info("Sending this: %s\n", buf);
     return kernel_sendmsg(sock, &msg, &vec, 1, length);
 }
 
@@ -18,5 +19,7 @@ static int tcp_recv(struct socket *sock, char *buf, size_t length) {
         .iov_base = buf,
         .iov_len = length
     };
-    return kernel_recvmsg(sock, &msg, &vec, 1, length, 0);
+    int ret = kernel_recvmsg(sock, &msg, &vec, 1, length, 0);
+    pr_info("Received this: %s\n", buf);
+    return ret;
 }
