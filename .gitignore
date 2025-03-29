@@ -5,3 +5,5 @@
 *.mod
 modules.order
 Module.symvers
+
+*.qcow2

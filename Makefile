@@ -1,8 +1,11 @@
 
-obj-m += stregsystem.o
+obj-m += stregkernel.o
+
+KERNEL_VERSION ?= $(shell uname -r)
+KDIR ?= $(KERNEL)/lib/modules/$(KERNEL_VERSION)/build
 
 all:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+	make -C $(KDIR) M=$(PWD) modules
 
 clean:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+	make -C $(KDIR) M=$(PWD) clean
