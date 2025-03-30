@@ -72,9 +72,11 @@ static void perform_http_request(char *command) {
         "POST /1/sale/ HTTP/1.1\r\n"
         "Host: 127.0.0.1:8080\r\n"
         "Content-Type: application/x-www-form-urlencoded\r\n"
+        "Cookie: csrftoken=%s\r\n"
         "Content-Length: %zu\r\n"
         "Connection: close\r\n\r\n"
         "%s",
+        csrf_token,
         strlen(post_body), post_body);
 
     tcp_send(sock, http_req, strlen(http_req));
