@@ -34,7 +34,7 @@ static void stregkernel_exit(void) {
     class_destroy(streg_class);
     unregister_chrdev(quickbuy_major_number, QUICKBUY_NAME);
     unregister_chrdev(balance_major_number, BALANCE_NAME);
-    pr_info("stregsystem unloaded\n");
+    pr_info("stregkernel unloaded\n");
 }
 
 

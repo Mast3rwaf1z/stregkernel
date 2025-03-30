@@ -11,10 +11,20 @@ ever wish you could buy your beer by echoing what you want directly into your ke
 ## Build
 `make`
 
+or nixos:
+
+`nix build`
+
 ## Load
 ```sh
 sudo insmod stregkernel.ko
 ```
+or nixos:
+```sh
+nix shell nixpkgs#linux.dev
+nix run .#insert
+```
+
 ## Use
 ```sh
 echo "admin øl:10" > /dev/fklub/quickbuy

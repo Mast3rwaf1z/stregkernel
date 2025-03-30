@@ -3,7 +3,7 @@
 #include <linux/compiler_types.h>
 #include <net/net_namespace.h>
 
-#define DEVICE_NAME "stregsystem"
+#define DEVICE_NAME "stregkernel"
 #define QUICKBUY_NAME "quickbuy"
 #define BALANCE_NAME "balance"
 #define CLASS_NAME "streg"

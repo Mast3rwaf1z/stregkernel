@@ -55,5 +55,10 @@
                 sudo rmmod stregkernel
             '');
         };
+        devShells.${system}.default = pkgs.mkShellNoCC {
+            packages = [
+                pkgs.linux.dev
+            ];
+        };
     };
 }
