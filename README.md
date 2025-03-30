@@ -22,7 +22,7 @@ sudo insmod stregkernel.ko
 or nixos:
 ```sh
 nix shell nixpkgs#linux.dev
-nix run .#insert
+sudo insmod result/lib/modules/*/misc/stregkernel.ko
 ```
 
 ## Use
