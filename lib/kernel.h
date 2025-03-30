@@ -16,19 +16,24 @@ static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, lof
 
 static struct file_operations fops = { .write = dev_write };
 
-static int stregsystem_init(void) {
-    major_number = register_chrdev(0, DEVICE_NAME, &fops);
+static int stregkernel_init(void) {
+    quickbuy_major_number = register_chrdev(0, "fklub/" QUICKBUY_NAME, &fops);
+    balance_major_number = register_chrdev(0, "fklub/" BALANCE_NAME, &fops);
     streg_class = class_create(CLASS_NAME);
-    streg_device = device_create(streg_class, NULL, MKDEV(major_number, 0), NULL, DEVICE_NAME);
-    pr_info("stregsystem loaded on /dev/%s (major: %d)\n", DEVICE_NAME, major_number);
+    quickbuy_device = device_create(streg_class, NULL, MKDEV(quickbuy_major_number, 0), NULL, "fklub/" QUICKBUY_NAME);
+    balance_device = device_create(streg_class, NULL, MKDEV(balance_major_number, 0), NULL, "fklub/" BALANCE_NAME);
+    pr_info("quickbuy loaded on /dev/fklub (major: %d)\n", quickbuy_major_number);
+    pr_info("balance loaded on /dev/fklub (major: %d)\n", balance_major_number);
     return 0;
 }
 
-static void stregsystem_exit(void) {
-    device_destroy(streg_class, MKDEV(major_number, 0));
+static void stregkernel_exit(void) {
+    device_destroy(streg_class, MKDEV(quickbuy_major_number, 0));
+    device_destroy(streg_class, MKDEV(balance_major_number, 0));
     class_unregister(streg_class);
     class_destroy(streg_class);
-    unregister_chrdev(major_number, DEVICE_NAME);
+    unregister_chrdev(quickbuy_major_number, QUICKBUY_NAME);
+    unregister_chrdev(balance_major_number, BALANCE_NAME);
     pr_info("stregsystem unloaded\n");
 }
 

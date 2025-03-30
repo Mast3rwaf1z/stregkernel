@@ -1,6 +1,6 @@
 
 #include "lib/kernel.h"
 
-module_init(stregsystem_init);
-module_exit(stregsystem_exit);
+module_init(stregkernel_init);
+module_exit(stregkernel_exit);
 MODULE_LICENSE("GPL");

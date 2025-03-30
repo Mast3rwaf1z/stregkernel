@@ -17,7 +17,29 @@
     },
     "root": {
       "inputs": {
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "stregsystemet": "stregsystemet"
+      }
+    },
+    "stregsystemet": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1736909817,
+        "narHash": "sha256-CGc5nmYO00o3Vq2hnptC5kkwEGQWhSUkZHS4gQYewj4=",
+        "owner": "Mast3rwaf1z",
+        "repo": "stregsystemet",
+        "rev": "b6bddbd9ff1f30d7203a8ed56f96e397f8227c3d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mast3rwaf1z",
+        "ref": "nix-updates",
+        "repo": "stregsystemet",
+        "type": "github"
       }
     }
   },

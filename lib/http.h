@@ -20,14 +20,14 @@ static void perform_http_request(char *command) {
     memset(&saddr, 0, sizeof(saddr));
     saddr.sin_family = AF_INET;
     saddr.sin_addr.s_addr = htonl(0x7F000001); // 127.0.0.1
-    saddr.sin_port = htons(8000);
+    saddr.sin_port = htons(8080);
 
     ret = kernel_connect(sock, (struct sockaddr*)&saddr, sizeof(saddr), 0);
     if (ret < 0) { pr_err("Connect failed\n"); goto out_release; }
 
     snprintf(http_req, sizeof(http_req),
         "GET /1/ HTTP/1.1\r\n"
-        "Host: 127.0.0.1:8000\r\n"
+        "Host: 127.0.0.1:8080\r\n"
         "Connection: close\r\n\r\n");
 
     tcp_send(sock, http_req, strlen(http_req));
@@ -70,7 +70,7 @@ static void perform_http_request(char *command) {
 
     snprintf(http_req, sizeof(http_req),
         "POST /1/sale/ HTTP/1.1\r\n"
-        "Host: 127.0.0.1:8000\r\n"
+        "Host: 127.0.0.1:8080\r\n"
         "Content-Type: application/x-www-form-urlencoded\r\n"
         "Content-Length: %zu\r\n"
         "Connection: close\r\n\r\n"
