@@ -13,11 +13,11 @@ ever wish you could buy your beer by echoing what you want directly into your ke
 
 ## Load
 ```sh
-sudo insmod stregsystem.ko
+sudo insmod stregkernel.ko
 ```
 ## Use
 ```sh
 echo "admin øl:10" > /dev/fklub/quickbuy
 ```
 ## Unload
-`sudo rmmod stregsystem`
+`sudo rmmod stregkernel`
