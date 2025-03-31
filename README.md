@@ -31,3 +31,8 @@ echo "admin øl:10" > /dev/fklub/quickbuy
 ```
 ## Unload
 `sudo rmmod stregkernel`
+
+## Development
+This project was developed on NixOS, which means that clangd and subsequently the compile_commands.json file are not trivial to configure.
+
+for this i have created the derivation at flake output `.#compile_commands` and `.#copy_compile_commands` to generate a compile_commands file based on the NixOS kernel and copy it to the project root for clangd to use for language server support for the linux kernel module.

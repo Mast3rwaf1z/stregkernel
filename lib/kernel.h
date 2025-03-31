@@ -1,8 +1,10 @@
 #pragma once
 
 
-#include "variables.h"
 #include "http.h"
+#include "variables.h"
+#include "chrdev.h"
+
 
 static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, loff_t *offset) {
     if (len >= MAX_BUFFER) len = MAX_BUFFER - 1;
@@ -13,27 +15,24 @@ static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, lof
     perform_http_request(multibuy_query);
     return len;
 }
+static struct file_operations quickbuy_operations = { .write = dev_write };
+static struct file_operations balance_operations = { .write = dev_write };
 
-static struct file_operations fops = { .write = dev_write };
+chrdev_wrapper quickbuy_wrapper;
+chrdev_wrapper balance_wrapper;
 
 static int stregkernel_init(void) {
-    quickbuy_major_number = register_chrdev(0, "fklub/" QUICKBUY_NAME, &fops);
-    balance_major_number = register_chrdev(0, "fklub/" BALANCE_NAME, &fops);
-    streg_class = class_create(CLASS_NAME);
-    quickbuy_device = device_create(streg_class, NULL, MKDEV(quickbuy_major_number, 0), NULL, "fklub/" QUICKBUY_NAME);
-    balance_device = device_create(streg_class, NULL, MKDEV(balance_major_number, 0), NULL, "fklub/" BALANCE_NAME);
-    pr_info("quickbuy loaded on /dev/fklub (major: %d)\n", quickbuy_major_number);
-    pr_info("balance loaded on /dev/fklub (major: %d)\n", balance_major_number);
+    create_wrapper(&quickbuy_wrapper, NAMESPACE "/quickbuy", &quickbuy_operations);
+    create_wrapper(&balance_wrapper, NAMESPACE "/balance", &balance_operations);
+
+    pr_info("quickbuy loaded on /dev/fklub (major: %d)\n", quickbuy_wrapper.major);
+    pr_info("balance loaded on /dev/fklub (major: %d)\n", balance_wrapper.major);
     return 0;
 }
 
 static void stregkernel_exit(void) {
-    device_destroy(streg_class, MKDEV(quickbuy_major_number, 0));
-    device_destroy(streg_class, MKDEV(balance_major_number, 0));
-    class_unregister(streg_class);
-    class_destroy(streg_class);
-    unregister_chrdev(quickbuy_major_number, QUICKBUY_NAME);
-    unregister_chrdev(balance_major_number, BALANCE_NAME);
+    destroy_wrapper(&quickbuy_wrapper, NAMESPACE "/quickbuy");
+    destroy_wrapper(&balance_wrapper, NAMESPACE "/balance");
     pr_info("stregkernel unloaded\n");
 }
 

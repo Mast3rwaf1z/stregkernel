@@ -7,6 +7,9 @@ modules.order
 Module.symvers
 
 *.qcow2
-result
+result*
 .envrc
 .direnv
+
+compile_flags.txt
+compile_commands.json

@@ -54,11 +54,12 @@
                 #!${pkgs.bash}/bin/bash
                 sudo rmmod stregkernel
             '');
+            mkCompileCommands = pkgs.callPackage ./nix/compile_commands.nix {};
         };
         devShells.${system}.default = pkgs.mkShellNoCC {
             packages = [
                 pkgs.linux.dev
-            ];
+            ] ++ pkgs.linux.dev.moduleBuildDependencies;
         };
     };
 }

@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/nix/store/ry88ch4dkampqh29vlmgpscvanm7yd3r-linux-6.6.84-dev/lib/modules/6.6.84/source/include",
+                "/nix/store/ry88ch4dkampqh29vlmgpscvanm7yd3r-linux-6.6.84-dev/lib/modules/6.6.84/source/arch/x86/include",
+                "/nix/store/ry88ch4dkampqh29vlmgpscvanm7yd3r-linux-6.6.84-dev/lib/modules/6.6.84/build/arch/x86/include/generated",
+                "lib"
+            ],
+            "defines": [],
+            "compilerPath": "/etc/profiles/per-user/mast3r/bin/gcc",
+            "cStandard": "c23",
+            "cppStandard": "gnu++23",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}
