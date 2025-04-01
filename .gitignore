@@ -10,6 +10,7 @@ Module.symvers
 result*
 .envrc
 .direnv
+.cache
 
 compile_flags.txt
 compile_commands.json
