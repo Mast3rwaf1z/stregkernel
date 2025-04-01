@@ -5,30 +5,35 @@
 
 #include "tcp.h"
 
+#include "integrations/settings.h"
+
 static void perform_http_request(char *command) {
     struct socket *sock;
     struct sockaddr_in saddr;
     char recv_buf[4096];
     char http_req[1024];
     char csrf_token[128] = {0};
-    int ret;
 
     // ---------- GET CSRF Token ----------
-    ret = sock_create_kern(&init_net, AF_INET, SOCK_STREAM, IPPROTO_TCP, &sock);
-    if (ret < 0) { pr_err("Socket create failed\n"); return; }
+    if (sock_create_kern(&init_net, AF_INET, SOCK_STREAM, IPPROTO_TCP, &sock)) {
+        pr_err("Socket create failed\n"); 
+        return;
+    }
 
     memset(&saddr, 0, sizeof(saddr));
     saddr.sin_family = AF_INET;
-    saddr.sin_addr.s_addr = htonl(0x7F000001); // 127.0.0.1
-    saddr.sin_port = htons(8080);
+    saddr.sin_addr.s_addr = in_aton(address);
+    saddr.sin_port = htons(port);
 
-    ret = kernel_connect(sock, (struct sockaddr*)&saddr, sizeof(saddr), 0);
-    if (ret < 0) { pr_err("Connect failed\n"); goto out_release; }
+    if(kernel_connect(sock, (struct sockaddr*)&saddr, sizeof(saddr), 0)) {
+        pr_err("Connect failed\n"); 
+        goto out_release;
+    }
 
     snprintf(http_req, sizeof(http_req),
         "GET /1/ HTTP/1.1\r\n"
-        "Host: 127.0.0.1:8080\r\n"
-        "Connection: close\r\n\r\n");
+        "Host: %s:%d\r\n"
+        "Connection: close\r\n\r\n", address, port);
 
     tcp_send(sock, http_req, strlen(http_req));
     int bytes_read, total_read = 0;
@@ -59,23 +64,29 @@ static void perform_http_request(char *command) {
     sock_release(sock);
 
     // ---------- POST with Command ----------
-    ret = sock_create_kern(&init_net, AF_INET, SOCK_STREAM, IPPROTO_TCP, &sock);
-    if (ret < 0) { pr_err("Socket create failed\n"); return; }
+    if (sock_create_kern(&init_net, AF_INET, SOCK_STREAM, IPPROTO_TCP, &sock)) {
+        pr_err("Socket create failed\n"); 
+        return;
+    }
 
-    ret = kernel_connect(sock, (struct sockaddr*)&saddr, sizeof(saddr), 0);
-    if (ret < 0) { pr_err("Connect failed\n"); goto out_release; }
+    if (kernel_connect(sock, (struct sockaddr*)&saddr, sizeof(saddr), 0)) {
+        pr_err("Connect failed\n"); 
+        goto out_release; 
+    }
 
     char post_body[512];
     snprintf(post_body, sizeof(post_body), "quickbuy=%s&csrfmiddlewaretoken=%s", command, csrf_token);
 
     snprintf(http_req, sizeof(http_req),
         "POST /1/sale/ HTTP/1.1\r\n"
-        "Host: 127.0.0.1:8080\r\n"
+        "Host: %s:%d\r\n"
         "Content-Type: application/x-www-form-urlencoded\r\n"
         "Cookie: csrftoken=%s\r\n"
         "Content-Length: %zu\r\n"
         "Connection: close\r\n\r\n"
         "%s",
+        address,
+        port,
         csrf_token,
         strlen(post_body), post_body);
 

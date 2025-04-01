@@ -28,6 +28,16 @@
                         ];
                         environment.systemPackages = with pkgs; [
                             python312
+                            # helpers
+                            (pkgs.writeScriptBin "quickbuy" ''
+                                echo "$@" > /dev/fklub/quickbuy
+                            '')
+                            (pkgs.writeScriptBin "flogo" ''
+                                cat /dev/fklub/flogo
+                            '')
+                            (pkgs.writeScriptBin "set-setting" ''
+                                echo $2 > /dev/fklub/settings/$1
+                            '')
                         ];
                         networking.firewall.enable = false;
                     
