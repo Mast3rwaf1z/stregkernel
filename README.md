@@ -1,8 +1,13 @@
-
-# stregsystem Kernel Module
+# Stregsystemets Linux Kernel Module
+<p align="center">
+    <img src=https://github.com/f-klubben/logo/blob/master/logo.svg width=10%> 
+</p>
+<p align="center">
 https://github.com/f-klubben/stregsystemet
-
+</p>
+<p align="center">
 ever wish you could buy your beer by echoing what you want directly into your kernel? no i didn't either.
+</p>
 
 ## Features
 - Creates `/dev/fklub/quickbuy` and `/dev/fklub/balance`.
