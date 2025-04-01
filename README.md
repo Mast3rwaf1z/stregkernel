@@ -33,14 +33,14 @@ echo "admin øl:10" > /dev/fklub/quickbuy
 If running using the vm flake output, then a few utils have been included:
 ```sh
 # buy something
-$ quickbuy admin øl:10
+quickbuy admin øl:10
 
 # display the flogo
-$ flogo
+flogo
 
 # set a setting
-$ set-setting address 127.0.0.1
-$ set-setting port 8080
+set-setting address 127.0.0.1
+set-setting port 8080
 ```
 
 ## Unload
