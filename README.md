@@ -1,6 +1,6 @@
 # Stregsystemets Linux Kernel Module
 <p align="center">
-    <img src=https://github.com/f-klubben/logo/blob/master/logo.svg width=10%> 
+    <img src=https://github.com/f-klubben/logo/blob/master/logo-white-circle-background.png width=150px> 
 </p>
 <p align="center">
 https://github.com/f-klubben/stregsystemet
