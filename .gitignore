@@ -12,5 +12,7 @@ result*
 .direnv
 .cache
 
+bin
+
 compile_flags.txt
 compile_commands.json

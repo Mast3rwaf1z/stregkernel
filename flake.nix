@@ -22,12 +22,10 @@
                         boot.kernelModules = [ "stregkernel" ];
 
                         virtualisation.vmVariant.virtualisation.graphics = false;
-                        virtualisation.vmVariant.virtualisation.forwardPorts = [
-                            { from = "host"; host.port = 8080; guest.port = 80; }
-                            { from = "host"; host.port = 8081; guest.port = 8080; }
-                        ];
                         environment.systemPackages = with pkgs; [
                             python312
+                            # to test the stregsystem
+                            lynx
                             # helpers
                             (pkgs.writeScriptBin "quickbuy" ''
                                 echo "$@" > /dev/fklub/quickbuy
@@ -38,10 +36,19 @@
                             (pkgs.writeScriptBin "set-setting" ''
                                 echo $2 > /dev/fklub/settings/$1
                             '')
+                            (pkgs.writeScriptBin "get-setting" ''
+                                cat /dev/fklub/settings/$1
+                            '')
+                            (pkgs.writeScriptBin "stregsystemet" ''
+                                ${pkgs.tmux}/bin/tmux new-session -d
+                                ${pkgs.tmux}/bin/tmux split-window -h "dmesg --follow"
+                                ${pkgs.tmux}/bin/tmux attach
+                            '')
                         ];
                         networking.firewall.enable = false;
                     
                         users.users.root.password = "1234";
+                        services.getty.autologinUser = "root";
                         system.stateVersion = "nixos-24.11";
 
                         stregsystemet = {
@@ -51,7 +58,6 @@
                                 enable = true;
                             };
                             debug.debug = true;
-
                         };
                     })
                 ];

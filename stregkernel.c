@@ -6,26 +6,39 @@
 chrdev_wrapper wrappers[] = {
     {
         .name = NAMESPACE "/quickbuy",
-        .operations = {
-            .write = quickbuy_w
-        }
+        .operations.write = quickbuy
     },
     { 
         .name = NAMESPACE "/flogo",
-        .operations = {
-            .read = flogo_r
-        }
+        .operations.read = flogo
+    },
+    {
+        .name = NAMESPACE "/balance",
+        .operations.read = balance
+    },
+    {
+        .name = NAMESPACE "/history",
+        .operations.read = history
     },
     {
         .name = NAMESPACE "/settings/address",
         .operations = {
-            .write = set_address
+            .write = set_address,
+            .read = get_address
+        }
+    },
+    {
+        .name = NAMESPACE "/settings/username",
+        .operations = {
+            .write = set_username,
+            .read = get_username
         }
     },
     {
         .name = NAMESPACE "/settings/port",
         .operations = {
-            .write = set_port
+            .write = set_port,
+            .read = get_port
         }
     }
 };
