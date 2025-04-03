@@ -9,6 +9,6 @@ stdenv.mkDerivation {
     KERNEL = kernel.dev;
     KERNEL_VERSION = kernel.modDirVersion;
     installPhase = ''
-        install -D stregkernel.ko $out/lib/modules/${kernel.modDirVersion}/misc/stregkernel.ko
+        install -D stregkernel.ko $out/lib/modules/${kernel.modDirVersion}/misc/stregkernel.ko 
     '';
 }

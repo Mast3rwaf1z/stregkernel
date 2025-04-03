@@ -6,51 +6,51 @@
 
 chrdev_wrapper wrappers[] = {
     {
-        .name = NAMESPACE "/quickbuy",
+        .name = NAMESPACE "quickbuy",
         .operations.write = quickbuy
     },
     { 
-        .name = NAMESPACE "/flogo",
+        .name = NAMESPACE "flogo",
         .operations.read = flogo
     },
     {
-        .name = NAMESPACE "/balance",
+        .name = NAMESPACE "balance",
         .operations.read = balance
     },
     {
-        .name = NAMESPACE "/history",
+        .name = NAMESPACE "history",
         .operations.read = history
     },
     {
-        .name = NAMESPACE "/settings/address",
+        .name = SETTING "address",
         .operations = {
             .write = set_address,
             .read = get_address
         }
     },
     {
-        .name = NAMESPACE "/settings/domain",
+        .name = SETTING "domain",
         .operations = {
             .write = set_domain,
             .read = get_domain
         }
     },
     {
-        .name = NAMESPACE "/settings/username",
+        .name = SETTING "username",
         .operations = {
             .write = set_username,
             .read = get_username
         }
     },
     {
-        .name = NAMESPACE "/settings/user_id",
+        .name = SETTING "user_id",
         .operations = {
             .write = set_user_id,
             .read = get_user_id
         }
     },
     {
-        .name = NAMESPACE "/settings/port",
+        .name = SETTING "port",
         .operations = {
             .write = set_port,
             .read = get_port
@@ -70,7 +70,7 @@ static void stregkernel_exit(void) {
     for (int i = 0; i < sizeof(wrappers)/sizeof(chrdev_wrapper); i++) {
         destroy_wrapper(&wrappers[i]);
     }
-    pr_info("stregkernel unloaded\n");
+    pr_info(PRINT_FMT "stregkernel unloaded\n");
 }
 
 

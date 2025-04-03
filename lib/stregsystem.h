@@ -1,6 +1,7 @@
 #pragma once
 
 #include "linux/net.h"
+#include <linux/delay.h>
 
 #include "integrations/settings.h"
 #include "utils.h"
@@ -119,7 +120,7 @@ int get_balance(struct socket* sock, char* buffer, const char* csrf_token) {
 
 int get_history(struct socket* sock, char* buffer, const char* csrf_token) {
     char http_req[STD_SIZE] = {0};
-    char recv_buf[STD_SIZE*8] = {0};
+    char recv_buf[STD_SIZE] = {0};
 
     snprintf(http_req, sizeof(http_req),
         "GET /1/user/%d/ HTTP/1.1\r\n"
@@ -133,17 +134,13 @@ int get_history(struct socket* sock, char* buffer, const char* csrf_token) {
     );
 
     tcp_send(sock, http_req, strlen(http_req));
-    int bytes_read, total_read = 0;
     memset(recv_buf, 0, sizeof(recv_buf));
-    do {
-        bytes_read = tcp_recv(sock, recv_buf + total_read, sizeof(recv_buf) - total_read - 1);
-        if (bytes_read > 0) {
-            total_read += bytes_read;
-        }
-    } while (bytes_read > 0);
-    recv_buf[total_read] = '\0';
+    
+    tcp_recv_2(sock, recv_buf, STD_SIZE);
 
-    if(get_string_between("<tbody>", "</tbody>", recv_buf, buffer)) {
+    pr_info("%s\n", recv_buf);
+
+    if(get_string_between("<table class=\"default\">", "</table>", recv_buf, buffer)) {
         pr_err(PRINT_FMT "failed to get history\n");
         return 1;
     }

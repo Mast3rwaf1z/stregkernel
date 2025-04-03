@@ -58,10 +58,8 @@ static ssize_t history(struct file *file_pointer, char __user *buffer, size_t bu
     int len = strlen(history); 
     ssize_t ret = len; 
     if (*offset >= len || copy_to_user(buffer, history, len)) { 
-        pr_info("we finished displaying your history\n"); 
         ret = 0; 
     } else { 
-        pr_info("reading balance... %s\n", file_pointer->f_path.dentry->d_name.name); 
         *offset += len; 
     } 
     return ret; 

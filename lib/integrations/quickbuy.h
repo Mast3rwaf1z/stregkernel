@@ -59,8 +59,11 @@ static ssize_t quickbuy(struct file *filep, const char __user *buffer, size_t le
         return -EFAULT;
     }
     query[len] = '\0';
-    pr_info("Received command: %s\n", query);
-
-    perform_quickbuy(query);
+    pr_info(PRINT_FMT "Received command: %s\n", query);
+    
+    if(perform_quickbuy(query)) {
+        pr_err(PRINT_FMT "Failed to perform quickbuy query\n");
+    }
+    pr_info(PRINT_FMT "Executed quickbuy query!\n");
     return len;
 }
