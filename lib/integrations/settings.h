@@ -8,11 +8,11 @@
 
 #include "../variables.h"
 
-// localhost as default address, we need this to be configurable when this project is mature enough for like kubernetes... or something????
 #define SETTINGS_SIZE 1024
 static struct sockaddr_in address_struct = {
     .sin_family = AF_INET
 };
+// localhost as default address, we need this to be configurable when this project is mature enough for like kubernetes... or something????
 static char address[SETTINGS_SIZE] = "127.0.0.1";
 // Hack the HTTP header to think we know wtf DNS is, in reality we just know the IP address
 static char domain[SETTINGS_SIZE] = "localhost";

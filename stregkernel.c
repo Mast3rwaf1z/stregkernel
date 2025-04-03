@@ -22,6 +22,10 @@ chrdev_wrapper wrappers[] = {
         .operations.read = history
     },
     {
+        .name = NAMESPACE "products",
+        .operations.read = products
+    },
+    {
         .name = SETTING "address",
         .operations = {
             .write = set_address,
