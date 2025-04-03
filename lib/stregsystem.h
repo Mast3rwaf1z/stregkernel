@@ -1,3 +1,4 @@
+#pragma once
 
 #include "linux/net.h"
 
@@ -14,7 +15,10 @@ static int get_csrf_token(struct socket* sock, char* buffer) {
     snprintf(http_req, sizeof(http_req),
         "GET /1/ HTTP/1.1\r\n"
         "Host: %s:%d\r\n"
-        "Connection: close\r\n\r\n", address, port);
+        "Connection: close\r\n\r\n",
+        domain,
+        port
+    );
 
     tcp_send(sock, http_req, strlen(http_req));
     int bytes_read, total_read = 0;
@@ -27,20 +31,19 @@ static int get_csrf_token(struct socket* sock, char* buffer) {
     } while (bytes_read > 0);
     recv_buf[total_read] = '\0';
     
-    pr_info(PRINT_FMT "GET Response: %.200s\n", recv_buf);
-
-    if(get_string_between("name=\"csrfmiddlewaretoken\" value=\"", '"', recv_buf, buffer)) {
+    if(get_string_between("name=\"csrfmiddlewaretoken\" value=\"", "\"", recv_buf, buffer)) {
         pr_err(PRINT_FMT "failed to parse csrf token\n");
+        return 1;
     }
     return 0;
 }
 
 static int send_quickbuy(struct socket* sock, const char* query, const char* csrf_token) {
     char http_req[STD_SIZE] = {0};
-    char recv_buf[STD_SIZE] = {0};
+    char recv_buf[STD_SIZE*4] = {0};
     char post_body[STD_SIZE] = {0};
 
-    snprintf(post_body, sizeof(post_body), "{\"quickbuy\":\"%s\", \"csrfmiddlewaretoken\":\"%s\"}", query, csrf_token);
+    snprintf(post_body, sizeof(post_body), "csrfmiddlewaretoken=%s&quickbuy=%s", csrf_token, query);
 
     snprintf(http_req, sizeof(http_req),
         "POST /1/sale/ HTTP/1.1\r\n"
@@ -50,20 +53,99 @@ static int send_quickbuy(struct socket* sock, const char* query, const char* csr
         "Content-Length: %zu\r\n"
         "Connection: close\r\n\r\n"
         "%s",
-        address,
+        domain,
         port,
         csrf_token,
-        strlen(post_body), post_body);
+        strlen(post_body),
+        post_body
+    );
 
     tcp_send(sock, http_req, strlen(http_req));
+    int bytes_read, total_read = 0;
     memset(recv_buf, 0, sizeof(recv_buf));
-    tcp_recv_all(sock, recv_buf, strlen(recv_buf));
-    pr_info(PRINT_FMT "POST Response: %.200s\n", recv_buf);
+    do {
+        bytes_read = tcp_recv(sock, recv_buf + total_read, sizeof(recv_buf) - total_read - 1);
+        if (bytes_read > 0) {
+            total_read += bytes_read;
+        }
+    } while (bytes_read > 0);
+    recv_buf[total_read] = '\0';
+
     return 0;
 }
 
 int get_balance(struct socket* sock, char* buffer, const char* csrf_token) {
     char http_req[STD_SIZE] = {0};
-    char recv_buf[STD_SIZE] = {0};
+    char recv_buf[STD_SIZE*4] = {0};
+
+    char post_body[STD_SIZE] = {0};
+
+
+    snprintf(post_body, sizeof(post_body), "csrfmiddlewaretoken=%s&quickbuy=%s", csrf_token, username);
+
+    snprintf(http_req, sizeof(http_req),
+        "POST /1/sale/ HTTP/1.1\r\n"
+        "Host: %s:%d\r\n"
+        "Content-Type: application/x-www-form-urlencoded\r\n"
+        "Cookie: csrftoken=%s\r\n"
+        "Content-Length: %zu\r\n"
+        "Connection: close\r\n\r\n"
+        "%s",
+        domain,
+        port,
+        csrf_token,
+        strlen(post_body),
+        post_body
+    );
+
+    tcp_send(sock, http_req, strlen(http_req));
+    int bytes_read, total_read = 0;
+    memset(recv_buf, 0, sizeof(recv_buf));
+    do {
+        bytes_read = tcp_recv(sock, recv_buf + total_read, sizeof(recv_buf) - total_read - 1);
+        if (bytes_read > 0) {
+            total_read += bytes_read;
+        }
+    } while (bytes_read > 0);
+    recv_buf[total_read] = '\0';
+
+    if(get_string_between("<h4>", "</h4>", recv_buf, buffer)) {
+        pr_err(PRINT_FMT "failed to get balance\n");
+        return 1;
+    }
+    return 0;
+
+}
+
+int get_history(struct socket* sock, char* buffer, const char* csrf_token) {
+    char http_req[STD_SIZE] = {0};
+    char recv_buf[STD_SIZE*8] = {0};
+
+    snprintf(http_req, sizeof(http_req),
+        "GET /1/user/%d/ HTTP/1.1\r\n"
+        "Host: %s:%d\r\n"
+        "Cookie: csrftoken=%s\r\n"
+        "Connection: close\r\n\r\n",
+        user_id,
+        domain,
+        port,
+        csrf_token
+    );
+
+    tcp_send(sock, http_req, strlen(http_req));
+    int bytes_read, total_read = 0;
+    memset(recv_buf, 0, sizeof(recv_buf));
+    do {
+        bytes_read = tcp_recv(sock, recv_buf + total_read, sizeof(recv_buf) - total_read - 1);
+        if (bytes_read > 0) {
+            total_read += bytes_read;
+        }
+    } while (bytes_read > 0);
+    recv_buf[total_read] = '\0';
+
+    if(get_string_between("<tbody>", "</tbody>", recv_buf, buffer)) {
+        pr_err(PRINT_FMT "failed to get history\n");
+        return 1;
+    }
     return 0;
 }

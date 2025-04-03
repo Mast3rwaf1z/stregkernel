@@ -13,9 +13,9 @@ int main(int argc, char* argv[]) {
     char* start_str = "<h4>";
     char* end_str = "</h4>";
     char target[128];
-    snprintf(target, 128, "%s%s%c", start_str, expected, end_str[0]);
+    snprintf(target, 128, "%s%s%s", start_str, expected, end_str);
     char result[128];
-    get_string_between(start_str, end_str[0], target, result);
+    get_string_between(start_str, end_str, target, result);
     printf("Expected: %s\n", expected);
     printf("Got:      %s\n", result);
     if (strcmp(result, expected)) {

@@ -1,4 +1,5 @@
 #include "lib/chrdev.h"
+#include "lib/integrations/settings.h"
 #include "lib/variables.h"
 
 #include "lib/integrations.h"
@@ -28,10 +29,24 @@ chrdev_wrapper wrappers[] = {
         }
     },
     {
+        .name = NAMESPACE "/settings/domain",
+        .operations = {
+            .write = set_domain,
+            .read = get_domain
+        }
+    },
+    {
         .name = NAMESPACE "/settings/username",
         .operations = {
             .write = set_username,
             .read = get_username
+        }
+    },
+    {
+        .name = NAMESPACE "/settings/user_id",
+        .operations = {
+            .write = set_user_id,
+            .read = get_user_id
         }
     },
     {

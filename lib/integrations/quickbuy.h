@@ -20,12 +20,6 @@ static int perform_quickbuy(char *query) {
         return 1;
     }
 
-    if (kernel_connect(sock, (struct sockaddr*)&address_struct, sizeof(address_struct), 0)) {
-        pr_err(PRINT_FMT "Connect failed\n"); 
-        sock_release(sock);
-        return 1;
-    }
-
     // ---------- GET CSRF Token ---------
     if(get_csrf_token(sock, csrf_token)) {
         pr_err(PRINT_FMT "Failed to parse csrf token\n");
@@ -35,6 +29,7 @@ static int perform_quickbuy(char *query) {
 
     sock_release(sock);
 
+
     if (sock_create_kern(&init_net, AF_INET, SOCK_STREAM, IPPROTO_TCP, &sock)) {
         pr_err(PRINT_FMT "Socket create failed\n"); 
         return 1;
@@ -42,12 +37,6 @@ static int perform_quickbuy(char *query) {
 
     if(init_socket(sock)) {
         pr_err(PRINT_FMT "Failed to initialize socket\n");
-        return 1;
-    }
-
-    if (kernel_connect(sock, (struct sockaddr*)&address_struct, sizeof(address_struct), 0)) {
-        pr_err(PRINT_FMT "Connect failed\n"); 
-        sock_release(sock);
         return 1;
     }
 

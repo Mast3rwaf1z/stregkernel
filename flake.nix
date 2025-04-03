@@ -26,17 +26,23 @@
                             python312
                             # to test the stregsystem
                             lynx
+                            tshark
+                            tmux
                             # helpers
                             (pkgs.writeScriptBin "quickbuy" ''
+                                echo "sending quickbuy string: [$@]"
                                 echo "$@" > /dev/fklub/quickbuy
+                            '')
+                            (pkgs.writeScriptBin "balance" ''
+                                cat /dev/fklub/balance
                             '')
                             (pkgs.writeScriptBin "flogo" ''
                                 cat /dev/fklub/flogo
                             '')
-                            (pkgs.writeScriptBin "set-setting" ''
-                                echo $2 > /dev/fklub/settings/$1
+                            (pkgs.writeScriptBin "fonfig-set" ''
+                                printf $2 > /dev/fklub/settings/$1
                             '')
-                            (pkgs.writeScriptBin "get-setting" ''
+                            (pkgs.writeScriptBin "fonfig-get" ''
                                 cat /dev/fklub/settings/$1
                             '')
                             (pkgs.writeScriptBin "stregsystemet" ''
@@ -57,7 +63,6 @@
                             testData = {
                                 enable = true;
                             };
-                            debug.debug = true;
                         };
                     })
                 ];
