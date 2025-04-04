@@ -8,7 +8,6 @@
 
 int perform_balance(char* buffer) {
     struct socket *sock;
-    char csrf_token[128] = {0};
 
     if (sock_create_kern(&init_net, AF_INET, SOCK_STREAM, IPPROTO_TCP, &sock)) {
         pr_err(PRINT_FMT "Socket create failed\n"); 
@@ -20,30 +19,8 @@ int perform_balance(char* buffer) {
         return 1;
     }
 
-    // ---------- GET CSRF Token ---------
-    if(get_csrf_token(sock, csrf_token)) {
-        pr_err(PRINT_FMT "Failed to parse csrf token\n");
-        sock_release(sock);
-        return 1;
-    }
-
-    sock_release(sock);
-
-
-    if (sock_create_kern(&init_net, AF_INET, SOCK_STREAM, IPPROTO_TCP, &sock)) {
-        pr_err(PRINT_FMT "Socket create failed\n"); 
-        return 1;
-    }
-
-    if(init_socket(sock)) {
-        pr_err(PRINT_FMT "Failed to initialize socket\n");
-        return 1;
-    }
-
-
-    // ---------- POST with Command ----------
-    if(get_balance(sock, buffer, csrf_token)) {
-        pr_err("Failed to send query\n");
+    if(get_balance(sock, buffer)) {
+        pr_err(PRINT_FMT "Failed to send query\n");
         return 1;
     }
     sock_release(sock);

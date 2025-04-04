@@ -9,165 +9,117 @@
 
 #define STD_SIZE 1024
 
-static int get_csrf_token(struct socket* sock, char* buffer) {
-    char http_req[STD_SIZE] = {0};
-    char recv_buf[STD_SIZE*4] = {0};
+static int post(struct socket* sock, const char* endpoint, const char* body) {
+    char http_request[STD_SIZE];
 
-    snprintf(http_req, sizeof(http_req),
-        "GET /1/ HTTP/1.1\r\n"
+    pr_info("POST BODY: %s\n", body);
+
+    snprintf(http_request, sizeof(http_request),
+        "POST %s HTTP/1.1\r\n"
         "Host: %s:%d\r\n"
-        "Connection: close\r\n\r\n",
+        "Content-Length: %zu\r\n"
+        "Connection: close\r\n\r\n"
+        "%s",
+        endpoint,
         domain,
-        port
+        port,
+        strlen(body),
+        body
     );
 
-    tcp_send(sock, http_req, strlen(http_req));
-    int bytes_read, total_read = 0;
-    memset(recv_buf, 0, sizeof(recv_buf));
-    do {
-        bytes_read = tcp_recv(sock, recv_buf + total_read, sizeof(recv_buf) - total_read - 1);
-        if (bytes_read > 0) {
-            total_read += bytes_read;
-        }
-    } while (bytes_read > 0);
-    recv_buf[total_read] = '\0';
+    tcp_send(sock, http_request, strlen(http_request));
+
+    return 0;
+}
+
+static int get(struct socket* sock, const char* endpoint, char* buffer, const size_t length, const size_t offset) {
+    char http_request[STD_SIZE] = {0};
+    char post_body[STD_SIZE] = {0};
+
+    pr_info("GET ENDPOINT: %s\n", endpoint);
+
+    snprintf(http_request, sizeof(http_request), 
+        "GET %s HTTP/1.1\r\n"
+        "Host: %s:%d\r\n"
+        "Content-Length: %zu\r\n"
+        "Connection: close\r\n\r\n"
+        "%s",
+        endpoint,
+        domain,
+        port,
+        strlen(post_body),
+        post_body
+    );
+
+    tcp_send(sock, http_request, STD_SIZE);
+    tcp_recv(sock, buffer, offset);
+    tcp_recv(sock, buffer, length);
+    pr_info(PRINT_FMT "GET RESPONSE: %s\n", buffer);
+    return 0;
+}
+
+static int send_quickbuy(struct socket* sock, const char* query) {
+    char body[STD_SIZE];
+
+    snprintf(body, sizeof(body), "{\"member_id\":%d, \"buystring\": \"%s\", \"room\":%d}", member_id, query, room_id);
+
+    return post(sock, "/api/sale", body);
+}
+
+int get_balance(struct socket* sock, char* buffer) {
+    char response[STD_SIZE] = {0};
+    char endpoint[STD_SIZE] = {0};
     
-    if(get_string_between("name=\"csrfmiddlewaretoken\" value=\"", "\"", recv_buf, buffer)) {
-        pr_err(PRINT_FMT "failed to parse csrf token\n");
+    pr_info("test\n");
+
+    snprintf(endpoint, sizeof(endpoint), "/api/member/balance?member_id=%d", member_id);
+
+    pr_info("test\n");
+    if(get(sock, endpoint, response, STD_SIZE, 700)) {
+        pr_err(PRINT_FMT "Failed to send GET request\n");
         return 1;
     }
-    return 0;
-}
-
-static int send_quickbuy(struct socket* sock, const char* query, const char* csrf_token) {
-    char http_req[STD_SIZE] = {0};
-    char recv_buf[STD_SIZE*4] = {0};
-    char post_body[STD_SIZE] = {0};
-
-    snprintf(post_body, sizeof(post_body), "csrfmiddlewaretoken=%s&quickbuy=%s", csrf_token, query);
-
-    snprintf(http_req, sizeof(http_req),
-        "POST /1/sale/ HTTP/1.1\r\n"
-        "Host: %s:%d\r\n"
-        "Content-Type: application/x-www-form-urlencoded\r\n"
-        "Cookie: csrftoken=%s\r\n"
-        "Content-Length: %zu\r\n"
-        "Connection: close\r\n\r\n"
-        "%s",
-        domain,
-        port,
-        csrf_token,
-        strlen(post_body),
-        post_body
-    );
-
-    tcp_send(sock, http_req, strlen(http_req));
-    int bytes_read, total_read = 0;
-    memset(recv_buf, 0, sizeof(recv_buf));
-    do {
-        bytes_read = tcp_recv(sock, recv_buf + total_read, sizeof(recv_buf) - total_read - 1);
-        if (bytes_read > 0) {
-            total_read += bytes_read;
-        }
-    } while (bytes_read > 0);
-    recv_buf[total_read] = '\0';
-
-    return 0;
-}
-
-int get_balance(struct socket* sock, char* buffer, const char* csrf_token) {
-    char http_req[STD_SIZE] = {0};
-    char recv_buf[STD_SIZE*4] = {0};
-
-    char post_body[STD_SIZE] = {0};
-
-
-    snprintf(post_body, sizeof(post_body), "csrfmiddlewaretoken=%s&quickbuy=%s", csrf_token, username);
-
-    snprintf(http_req, sizeof(http_req),
-        "POST /1/sale/ HTTP/1.1\r\n"
-        "Host: %s:%d\r\n"
-        "Content-Type: application/x-www-form-urlencoded\r\n"
-        "Cookie: csrftoken=%s\r\n"
-        "Content-Length: %zu\r\n"
-        "Connection: close\r\n\r\n"
-        "%s",
-        domain,
-        port,
-        csrf_token,
-        strlen(post_body),
-        post_body
-    );
-
-    tcp_send(sock, http_req, strlen(http_req));
-    int bytes_read, total_read = 0;
-    memset(recv_buf, 0, sizeof(recv_buf));
-    do {
-        bytes_read = tcp_recv(sock, recv_buf + total_read, sizeof(recv_buf) - total_read - 1);
-        if (bytes_read > 0) {
-            total_read += bytes_read;
-        }
-    } while (bytes_read > 0);
-    recv_buf[total_read] = '\0';
-
-    if(get_string_between("<h4>", "</h4>", recv_buf, buffer)) {
+    pr_info("test\n");
+    
+    if(get_string_between("{", "}", response, buffer)) {
         pr_err(PRINT_FMT "failed to get balance\n");
         return 1;
     }
+    pr_info("test\n");
     return 0;
-
 }
 
-int get_history(struct socket* sock, char* buffer, const char* csrf_token) {
-    char http_req[STD_SIZE] = {0};
-    char recv_buf[STD_SIZE] = {0};
+int get_history(struct socket* sock, char* buffer) {
+    char response[STD_SIZE] = {0};
+    char endpoint[STD_SIZE] = {0};
 
-    snprintf(http_req, sizeof(http_req),
-        "GET /1/user/%d/ HTTP/1.1\r\n"
-        "Host: %s:%d\r\n"
-        "Cookie: csrftoken=%s\r\n"
-        "Connection: close\r\n\r\n",
-        user_id,
-        domain,
-        port,
-        csrf_token
-    );
+    snprintf(endpoint, sizeof(endpoint), "/api/member/sales?member_id=%d", member_id);
 
-    tcp_send(sock, http_req, strlen(http_req));
-    memset(recv_buf, 0, sizeof(recv_buf));
+    if(get(sock, endpoint, response, STD_SIZE, 700)) {
+        pr_err(PRINT_FMT "Failed to send GET request\n");
+        return 1;
+    }
     
-    tcp_recv_index(sock, recv_buf, STD_SIZE, 3);
-
-    pr_info("%s\n", recv_buf);
-
-    if(get_string_between("<table class=\"default\">", "</table>", recv_buf, buffer)) {
+    if(get_string_between("{", "]}", response, buffer)) {
         pr_err(PRINT_FMT "failed to get history\n");
         return 1;
     }
     return 0;
 }
 
-int get_products(struct socket* sock, char* buffer, const char* csrf_token) {
-    char http_req[STD_SIZE] = {0};
-    char recv_buf[STD_SIZE] = {0};
+int get_products(struct socket* sock, char* buffer) {
+    char response[STD_SIZE] = {0};
+    char endpoint[STD_SIZE] = {0};
 
-    snprintf(http_req, sizeof(http_req),
-        "GET /1/ HTTP/1.1\r\n"
-        "Host: %s:%d\r\n"
-        "Connection: close\r\n\r\n",
-        domain,
-        port
-    );
+    snprintf(endpoint, sizeof(endpoint), "/api/products/active_products?room_id=%d", room_id);
 
-    tcp_send(sock, http_req, strlen(http_req));
-    memset(recv_buf, 0, sizeof(recv_buf));
+    if(get(sock, endpoint, response, STD_SIZE, 700)) {
+        pr_err(PRINT_FMT "Failed to send GET request\n");
+        return 1;
+    }
     
-    tcp_recv_index(sock, recv_buf, STD_SIZE, 4);
-
-    pr_info("%s\n", recv_buf);
-
-    if(get_string_between("<tr>", "</tr>", recv_buf, buffer)) {
-        pr_err(PRINT_FMT "failed to get history\n");
+    if(get_string_between("{", "}}", response, buffer)) {
+        pr_err(PRINT_FMT "failed to get products\n");
         return 1;
     }
     return 0;

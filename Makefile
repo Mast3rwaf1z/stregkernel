@@ -1,9 +1,6 @@
 
 obj-m += stregkernel.o
 
-CONFIG_THREAD_INFO_IN_TASK=y
-CONFIG_DEBUG_STACK_USAGE=y
-
 CC ?= gcc
 KERNEL_VERSION ?= $(shell uname -r)
 KDIR ?= $(KERNEL)/lib/modules/$(KERNEL_VERSION)/build

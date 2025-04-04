@@ -18,7 +18,8 @@ static char address[SETTINGS_SIZE] = "127.0.0.1";
 static char domain[SETTINGS_SIZE] = "localhost";
 // Little workaround for balance config
 static char username[SETTINGS_SIZE] = "tester";
-static int user_id = 1;
+static int member_id = 1;
+static int room_id = 1;
 // Port 8080 for some reason???
 static int port = 8080;
 
@@ -115,10 +116,18 @@ static ssize_t get_port(struct file *f, char __user *buffer, size_t len, loff_t 
     return get_int(&port, buffer, offset);
 }
 
-static ssize_t set_user_id(struct file *f, const char __user *buffer, size_t len, loff_t* offset) {
-    return set_int(buffer, &user_id, len);
+static ssize_t set_member_id(struct file *f, const char __user *buffer, size_t len, loff_t* offset) {
+    return set_int(buffer, &member_id, len);
 }
 
-static ssize_t get_user_id(struct file *f, char __user *buffer, size_t len, loff_t *offset) { 
-    return get_int(&user_id, buffer, offset);
+static ssize_t get_member_id(struct file *f, char __user *buffer, size_t len, loff_t *offset) { 
+    return get_int(&member_id, buffer, offset);
+}
+
+static ssize_t set_room_id(struct file *f, const char __user *buffer, size_t len, loff_t* offset) {
+    return set_int(buffer, &room_id, len);
+}
+
+static ssize_t get_room_id(struct file *f, char __user *buffer, size_t len, loff_t *offset) { 
+    return get_int(&room_id, buffer, offset);
 }

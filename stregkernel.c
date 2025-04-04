@@ -47,10 +47,10 @@ chrdev_wrapper wrappers[] = {
         }
     },
     {
-        .name = SETTING "user_id",
+        .name = SETTING "member_id",
         .operations = {
-            .write = set_user_id,
-            .read = get_user_id
+            .write = set_member_id,
+            .read = get_member_id
         }
     },
     {
