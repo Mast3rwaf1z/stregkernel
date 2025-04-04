@@ -1,8 +1,12 @@
 #include "lib/chrdev.h"
-#include "lib/integrations/settings.h"
 #include "lib/variables.h"
 
-#include "lib/integrations.h"
+#include "lib/integrations/settings.h"
+#include "lib/integrations/quickbuy.h"
+#include "lib/integrations/products.h"
+#include "lib/integrations/history.h"
+#include "lib/integrations/flogo.h"
+#include "lib/integrations/balance.h"
 
 chrdev_wrapper wrappers[] = {
     {
@@ -47,10 +51,17 @@ chrdev_wrapper wrappers[] = {
         }
     },
     {
-        .name = SETTING "user_id",
+        .name = SETTING "member_id",
         .operations = {
-            .write = set_user_id,
-            .read = get_user_id
+            .write = set_member_id,
+            .read = get_member_id
+        }
+    },
+    {
+        .name = SETTING "room_id",
+        .operations = {
+            .write = set_room_id,
+            .read = get_room_id
         }
     },
     {

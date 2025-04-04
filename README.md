@@ -9,6 +9,8 @@ https://github.com/f-klubben/stregsystemet | https://fklub.dk
 ever wish you could buy your beer by echoing what you want directly into your kernel? no i didn't either.
 </p>
 
+Note: this project was developed as an entry for [Facking](https://fklub.dk/aktiviteter/fhacking)
+
 ## Features
 - Creates `/dev/fklub/quickbuy` and `/dev/fklub/balance`.
 - send a multibuy via a character device under `/dev` to [stregsystemet](https://github.com/f-klubben/stregsystemet)

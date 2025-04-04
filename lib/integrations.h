@@ -1,6 +1,0 @@
-#include "integrations/flogo.h"
-#include "integrations/quickbuy.h"
-#include "integrations/settings.h"
-#include "integrations/balance.h"
-#include "integrations/history.h"
-#include "integrations/products.h"
