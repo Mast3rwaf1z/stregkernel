@@ -54,6 +54,13 @@ chrdev_wrapper wrappers[] = {
         }
     },
     {
+        .name = SETTING "room_id",
+        .operations = {
+            .write = set_room_id,
+            .read = get_room_id
+        }
+    },
+    {
         .name = SETTING "port",
         .operations = {
             .write = set_port,
