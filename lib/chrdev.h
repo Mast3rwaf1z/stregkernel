@@ -1,3 +1,5 @@
+#pragma once
+
 #include <linux/fs.h>
 #include <linux/kdev_t.h>
 #include <linux/device.h>

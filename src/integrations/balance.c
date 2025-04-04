@@ -43,5 +43,3 @@ ssize_t balance(struct file *file_pointer, char __user *buffer, size_t buffer_le
     } 
     return ret; 
 }
-
-MODULE_LICENSE("GPL");

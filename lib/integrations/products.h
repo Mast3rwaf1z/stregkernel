@@ -1,3 +1,5 @@
+#pragma once
+
 #include "linux/fs.h"
 
 int perform_products(char* buffer);

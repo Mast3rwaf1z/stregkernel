@@ -1,3 +1,5 @@
+#pragma once
+
 #include <linux/fs.h>
 
 #define MAX_QUERY 1024

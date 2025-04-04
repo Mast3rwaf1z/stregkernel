@@ -1,6 +1,8 @@
+#pragma once
+
 #include <linux/fs.h>
 
-const char* FLOGO = 
+static const char* FLOGO = 
 "                        ###                                        ###   ###                       \n"
 "                       #####    ########################           #### #####                      \n"
 "                      ##   ##  ####################################### ##   ##                     \n"
