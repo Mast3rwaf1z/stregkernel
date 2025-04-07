@@ -5,5 +5,3 @@
 #include <linux/net.h>
 
 int init_socket(struct socket* sock);
-
-

@@ -15,7 +15,7 @@ ssize_t set_str(const char* __user source, char* target, size_t len) {
         return -1;
     }
     target[len] = '\0';
-    pr_info(PRINT_FMT "set setting to: %s", target);
+    pr_info(PRINT_FMT "set setting to: %s\n", target);
     return len;
 }
 
@@ -27,7 +27,7 @@ ssize_t get_str(const char* source, char* __user target, loff_t* offset) {
     } else { 
         *offset += len; 
     } 
-    pr_info(PRINT_FMT "Returned setting: %s", source);
+    pr_info(PRINT_FMT "Returned setting: %s\n", source);
     return ret;
 }
 
@@ -45,7 +45,7 @@ ssize_t set_int(const char* __user source, int* target, size_t len) {
         pr_warn(PRINT_FMT "Failed to parse int %s\n", temp);
         return -1;
     }
-    pr_info(PRINT_FMT "set setting to: %d", *target);
+    pr_info(PRINT_FMT "set setting to: %d\n", *target);
     return len;
 }
 
@@ -60,7 +60,39 @@ ssize_t get_int(const int* source, char* __user target, loff_t* offset) {
     } else { 
         *offset += len; 
     } 
-    pr_info(PRINT_FMT "Returned setting: %d", *source);
+    pr_info(PRINT_FMT "Returned setting: %d\n", *source);
+    return ret; 
+}
+
+ssize_t set_bool(const char* __user source, bool* target, size_t len) {
+    char temp[SETTINGS_SIZE] = {0};
+    if (len >= SETTINGS_SIZE) {
+        len = SETTINGS_SIZE - 1;
+    }
+    if (copy_from_user(temp, source, len)) {
+        pr_warn("failed to set setting\n");
+        return -1;
+    }
+    temp[len] = '\0';
+    if (strtobool(temp, target)) {
+        pr_err("Failed to parse bool\n");
+        return -1;
+    }
+    pr_info(PRINT_FMT "set setting to: %d\n", *target);
+    return len;
+}
+
+ssize_t get_bool(const bool* source, char* __user target, loff_t* offset) {
+    char* temp = *source ? "true" : "false";
+
+    int len = strlen(temp); 
+    ssize_t ret = len; 
+    if (*offset >= len || copy_to_user(target, temp, len)) { 
+        ret = 0; 
+    } else { 
+        *offset += len; 
+    } 
+    pr_info(PRINT_FMT "Returned setting: %d\n", *source);
     return ret; 
 }
 
@@ -112,4 +144,12 @@ ssize_t set_room_id(struct file *f, const char __user *buffer, size_t len, loff_
 
 ssize_t get_room_id(struct file *f, char __user *buffer, size_t len, loff_t *offset) { 
     return get_int(&room_id, buffer, offset);
+}
+
+ssize_t set_ssl(struct file *f, const char __user *buffer, size_t len, loff_t* offset) {
+    return set_bool(buffer, &ssl, len);
+}
+
+ssize_t get_ssl(struct file *f, char __user *buffer, size_t len, loff_t *offset) {
+    return get_bool(&ssl, buffer, offset);
 }

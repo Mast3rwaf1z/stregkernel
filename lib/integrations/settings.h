@@ -18,6 +18,7 @@ static int member_id = 1;
 static int room_id = 1;
 // Port 8080 for some reason???
 static int port = 8080;
+static bool ssl = false;
 
 ssize_t set_str(const char* __user source, char* target, size_t len);
 
@@ -26,6 +27,10 @@ ssize_t get_str(const char* source, char* __user target, loff_t* offset);
 ssize_t set_int(const char* __user source, int* target, size_t len);
 
 ssize_t get_int(const int* source, char* __user target, loff_t* offset);
+
+ssize_t set_bool(const char* __user source, bool* target, size_t len);
+
+ssize_t get_bool(const bool* source, char* __user target, loff_t* offset);
 
 ssize_t set_address(struct file* __, const char __user *buffer, size_t len, loff_t* offset);
 
@@ -50,3 +55,7 @@ ssize_t get_member_id(struct file *f, char __user *buffer, size_t len, loff_t *o
 ssize_t set_room_id(struct file *f, const char __user *buffer, size_t len, loff_t* offset);
 
 ssize_t get_room_id(struct file *f, char __user *buffer, size_t len, loff_t *offset);
+
+ssize_t set_ssl(struct file *f, const char __user *buffer, size_t len, loff_t* offset);
+
+ssize_t get_ssl(struct file *f, char __user *buffer, size_t len, loff_t *offset);
