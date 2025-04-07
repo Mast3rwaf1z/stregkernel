@@ -7,6 +7,7 @@
 #include "lib/integrations/history.h"
 #include "lib/integrations/flogo.h"
 #include "lib/integrations/balance.h"
+#include "lib/integrations/receiver.h"
 
 chrdev_wrapper wrappers[] = {
     {
@@ -28,6 +29,10 @@ chrdev_wrapper wrappers[] = {
     {
         .name = NAMESPACE "products",
         .operations.read = products
+    },
+    {
+        .name = SETTING "socket",
+        .operations.write = get_socket
     },
     {
         .name = SETTING "address",
@@ -69,6 +74,13 @@ chrdev_wrapper wrappers[] = {
         .operations = {
             .write = set_port,
             .read = get_port
+        }
+    },
+    {
+        .name = SETTING "ssl",
+        .operations = {
+            .write = set_ssl,
+            .read = get_ssl
         }
     }
 };

@@ -1,8 +1,7 @@
 #include <linux/inet.h>
 #include <linux/net_namespace.h>
-
-#include "linux/net.h"
-#include "linux/printk.h"
+#include <linux/net.h>
+#include <linux/printk.h>
 
 #include "lib/http.h"
 #include "lib/variables.h"

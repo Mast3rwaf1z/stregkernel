@@ -1,5 +1,4 @@
-#include <linux/net.h>
-#include <linux/seq_file_net.h>
+#include <linux/socket.h>
 
 #include "lib/integrations/quickbuy.h"
 #include "lib/http.h"
